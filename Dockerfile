@@ -5,27 +5,26 @@ RUN echo '@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/ap
 RUN apk add --no-cache git nodejs python py-pip g++ make py-numpy@testing
 RUN pip install nltk
 
-ARG USER=docker
-ARG HOME=/home/$USER
+ENV USERNAME docker
 
-RUN addgroup -S $USER \
- && adduser -h $HOME -S $USER \
- && adduser $USER $USER
+RUN addgroup -S $USERNAME \
+ && adduser -S $USERNAME \
+ && adduser $USERNAME $USERNAME
 
-RUN git clone https://github.com/ObamaPhony/node-app.git         $HOME/app
-RUN git clone https://github.com/ObamaPhony/speech-analysis.git  $HOME/analysis
-RUN git clone https://github.com/ObamaPhony/speech-generator.git $HOME/generator
-RUN ln -s ../analysis/speech-analysis.py   $HOME/app/bin/analyse
-RUN ln -s ../generator/speech-generator.py $HOME/app/bin/generate
+RUN git clone https://github.com/ObamaPhony/node-app.git         /docker/app
+RUN git clone https://github.com/ObamaPhony/speech-analysis.git  /docker/analysis
+RUN git clone https://github.com/ObamaPhony/speech-generator.git /docker/generator
+RUN ln -s ../analysis/speech-analysis.py   /docker/app/bin/analyse
+RUN ln -s ../generator/speech-generator.py /docker/app/bin/generate
 
-WORKDIR $HOME/app
+WORKDIR /docker/app
 RUN npm install --production
 
-RUN apk del --no-cache git py-pip g++ make
+RUN apk del --no-cache --rdepends git py-pip g++ make
 RUN rm -rf ~/.cache ~/.npm ~/.node-gyp
 
-RUN chown -R $USER:$USER $HOME/app
-USER $USER
+RUN chown -R $USERNAME:$USERNAME /docker
+USER $USERNAME
 
 EXPOSE 8080
 CMD ["npm", "start"]
