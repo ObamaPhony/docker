@@ -1,7 +1,7 @@
-FROM alpine:3.8
+FROM alpine:3.18
 
 RUN echo '@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories \
-    && apk add --no-cache git nodejs nodejs-npm python python3 g++ make \
+    && apk add --no-cache git nodejs npm python3 g++ make \
     && python3 -m ensurepip \
     && pip3 install --upgrade pip setuptools \
     && pip3 install nltk
@@ -23,9 +23,7 @@ WORKDIR /docker/app
 RUN npm install --production
 
 RUN apk del --no-cache --rdepends git g++ make py3-pip \
-    & rm -rf ~/.cache ~/.npm ~/.node-gyp
-
-RUN chown -R $USERNAME:$USERNAME /docker
+  && chown -Rv $USERNAME:$USERNAME /docker
 USER $USERNAME
 
 # Download NLTK stuff.
